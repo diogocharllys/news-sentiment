@@ -1,0 +1,45 @@
+# Infraestrutura de dev: Postgres (com pgvector) + Redis.
+# A app (FastAPI / Celery) roda localmente via `uv run` — não está no compose.
+#
+# Subir:    docker compose up -d
+# Derrubar: docker compose down
+# Logs:     docker compose logs -f postgres
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: news_sentiment_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-news_sentiment}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-news_sentiment}
+      POSTGRES_DB: ${POSTGRES_DB:-news_sentiment}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ escapa o $ para não ser interpolado pelo compose;
+      # o shell dentro do container resolve $POSTGRES_USER e $POSTGRES_DB.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: news_sentiment_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
