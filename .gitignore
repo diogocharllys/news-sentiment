@@ -57,9 +57,11 @@ desktop.ini
 *.log
 logs/
 
-# Local data / models / caches
-data/
-models/
+# Local data / models / caches (artefatos de runtime na raiz do projeto).
+# A barra inicial ancora o padrão à raiz — senão "models/" pegaria
+# também pacotes de código como src/.../db/models/.
+/data/
+/models/
 *.sqlite
 *.db
 
