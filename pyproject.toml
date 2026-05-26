@@ -20,6 +20,7 @@ license-files = ["LICENSE"]
 # Dependências de runtime — vazio por enquanto, adicionamos conforme o roadmap.
 dependencies = [
     "alembic>=1.18.4",
+    "feedparser>=6.0.12",
     "psycopg[binary]>=3.3.4",
     "sqlalchemy>=2.0.49",
 ]
@@ -84,6 +85,13 @@ files = ["src", "tests"]
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_defs = false
+
+# feedparser não publica type stubs (sem py.typed). Sem isto, o mypy strict
+# falha o import com "import-untyped". Limita-se a este módulo — o resto do
+# código continua sob strict.
+[[tool.mypy.overrides]]
+module = ["feedparser"]
+ignore_missing_imports = true
 
 # ---------------------------------------------------------------------------
 # Pytest
